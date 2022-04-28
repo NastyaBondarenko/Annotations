@@ -60,7 +60,7 @@ public class QueryGeneratorTest {
 
     @Test
     @DisplayName("test Delete")
-    public void delete() {
+    public void testDelete() {
         String actualQuery = queryGenerator.delete(Person.class, 10);
         String expectedQuery = "DELETE FROM Person WHERE person_id=10;";
 
@@ -69,7 +69,7 @@ public class QueryGeneratorTest {
 
     @Test
     @DisplayName("test Update")
-    public void update() {
+    public void testUpdate() {
         String actualQuery = queryGenerator.update(10, 5);
         String expectedQuery = "UPDATE Person SET person_id=5 WHERE person_id=10;";
 
