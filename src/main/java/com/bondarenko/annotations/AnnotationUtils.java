@@ -22,7 +22,6 @@ public class AnnotationUtils {
                 }
                 method.setAccessible(false);
             }
-
         }
         return listMethodsWithAnnotationRun;
     }
@@ -39,11 +38,11 @@ public class AnnotationUtils {
                 try {
                     newObject = objectClazz.getConstructor().newInstance();
                 } catch (InstantiationException | IllegalAccessException exception) {
-                    throw new RuntimeException("Can`t create new object", exception);
+                    throw new RuntimeException("Can`t create new object.Illegal access to class", exception);
                 } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Can`t create new object", e);
+                    throw new RuntimeException("Can`t create new object by constructor", e);
                 } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Can`t create new object", e);
+                    throw new RuntimeException("Can`t create new object. Method is not exist", e);
                 }
                 field.setAccessible(true);
                 try {
