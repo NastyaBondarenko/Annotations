@@ -9,6 +9,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AnnotationTest {
+
     private AnnotationUtils annotationUtils = new AnnotationUtils();
     private RunAnnotation runAnnotation = new RunAnnotation();
     private InjectAnnotation injectAnnotation = new InjectAnnotation();
