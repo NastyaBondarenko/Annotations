@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QueryGeneratorTest {
+
     private QueryGenerator queryGenerator = new QueryGenerator();
 
     @Test
