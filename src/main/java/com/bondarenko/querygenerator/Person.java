@@ -1,11 +1,7 @@
 package com.bondarenko.querygenerator;
 
-import lombok.Setter;
-
-@Setter
 @Table
 public class Person {
-
     @Column(name = "person_id")
     private int id;
 

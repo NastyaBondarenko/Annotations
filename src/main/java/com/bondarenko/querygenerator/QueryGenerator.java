@@ -107,10 +107,10 @@ public class QueryGenerator {
         return stringBuilder.toString();
     }
 
-    public String update(Object value,Object id) {
+    public String update(Object value, Object id) {
 
         Class<?> clazz = id.getClass();
-        clazz=Person.class;
+        clazz = Person.class;
 
         StringBuilder stringBuilder = new StringBuilder("UPDATE ");
 
