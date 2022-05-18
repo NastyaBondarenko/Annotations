@@ -110,5 +110,4 @@ public class QueryGeneratorTest {
 
         assertEquals(expected, actual);
     }
-
 }
