@@ -1,9 +1,10 @@
 package com.bondarenko.querygenerator;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 
 public class QueryGenerator {
@@ -18,7 +19,6 @@ public class QueryGenerator {
         String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
 
         StringJoiner columnsNames = new StringJoiner(", ");
-
         for (String allColumnsName : getAllColumnsNames(clazz)) {
             columnsNames.add(String.valueOf(allColumnsName));
         }
@@ -41,42 +41,55 @@ public class QueryGenerator {
         }
         String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
 
-        StringJoiner columnNameById = new StringJoiner(" ");
-        String columnName = getColumnNameById(clazz);
-        columnNameById.add(columnName);
+        StringJoiner columnsNames = new StringJoiner(", ");
+        for (String allColumnsName : getAllColumnsNames(clazz)) {
+            columnsNames.add(String.valueOf(allColumnsName));
+        }
+        String AllColumnsNames = columnsNames.toString();
 
-        stringBuilder.append(" * ");
+        StringJoiner idColumnName = new StringJoiner(" ");
+        String columnName = getIdColumnName(clazz);
+        idColumnName.add(columnName);
+
+        stringBuilder.append(" ");
+        stringBuilder.append(AllColumnsNames);
+        stringBuilder.append(" ");
         stringBuilder.append("FROM ");
         stringBuilder.append(tableName);
         stringBuilder.append(" WHERE ");
-        stringBuilder.append(columnNameById);
+        stringBuilder.append(idColumnName);
+        stringBuilder.append(" ");
         stringBuilder.append("=");
+        stringBuilder.append(" ");
         stringBuilder.append(id);
         stringBuilder.append(";");
 
         return stringBuilder.toString();
     }
 
-    public String insert(Object value) {
+    public String insert(Object id) {
+        Class<?> clazz = id.getClass();
 
         StringBuilder stringBuilder = new StringBuilder("INSERT INTO ");
 
-        Class<?> clazz = Person.class;
         Table annotation = clazz.getAnnotation(Table.class);
         if (annotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
         String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
 
-        StringJoiner columnNameById = new StringJoiner(" ");
-        String columnName = getColumnNameById(clazz);
-        columnNameById.add(columnName);
+        StringJoiner columnsNames = new StringJoiner(", ");
+        for (String allColumnsName : getAllColumnsNames(clazz)) {
+            columnsNames.add(String.valueOf(allColumnsName));
+        }
+        String AllColumnsNames = columnsNames.toString();
+        String valuesOfFields = getAllValuesOfFields(id);
 
         stringBuilder.append(tableName);
         stringBuilder.append(" (");
-        stringBuilder.append(columnNameById);
+        stringBuilder.append(AllColumnsNames);
         stringBuilder.append(") VALUES ('");
-        stringBuilder.append(value);
+        stringBuilder.append(valuesOfFields);
         stringBuilder.append("')");
         stringBuilder.append(";");
 
@@ -84,64 +97,61 @@ public class QueryGenerator {
     }
 
     public String delete(Class<?> clazz, Object id) {
-
         Table annotation = clazz.getAnnotation(Table.class);
         if (annotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
         String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
 
-        StringJoiner columnNameById = new StringJoiner(" ");
-        String columnName = getColumnNameById(clazz);
-        columnNameById.add(columnName);
+        StringJoiner idColumnName = new StringJoiner(" ");
+        String columnName = getIdColumnName(clazz);
+        idColumnName.add(columnName);
 
         StringBuilder stringBuilder = new StringBuilder("DELETE ");
         stringBuilder.append("FROM ");
         stringBuilder.append(tableName);
         stringBuilder.append(" WHERE ");
-        stringBuilder.append(columnNameById);
+        stringBuilder.append(idColumnName);
+        stringBuilder.append(" ");
         stringBuilder.append("=");
+        stringBuilder.append(" ");
         stringBuilder.append(id);
         stringBuilder.append(";");
 
         return stringBuilder.toString();
     }
 
-    public String update(Object value, Object id) {
-
-        Class<?> clazz = id.getClass();
-        clazz = Person.class;
+    public String update(Object value) {
+        Class<?> clazz = value.getClass();
 
         StringBuilder stringBuilder = new StringBuilder("UPDATE ");
 
         Table annotation = clazz.getAnnotation(Table.class);
-
         if (annotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
         String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
 
         StringJoiner columnNameById = new StringJoiner(" ");
-        String columnName = getColumnNameById(clazz);
+        String columnName = getIdColumnName(clazz);
         columnNameById.add(columnName);
+
+        String columnIdNameAndValue = getColumnIdValueAndName(value);
+        String columnsNamesAndValues = getColumnsNamesAndValues(value);
 
         stringBuilder.append(tableName);
         stringBuilder.append(" SET ");
-        stringBuilder.append(columnName);
-        stringBuilder.append("=");
-        stringBuilder.append(id);
+        stringBuilder.append(columnsNamesAndValues);
         stringBuilder.append(" WHERE ");
-        stringBuilder.append(columnName);
-        stringBuilder.append("=");
-        stringBuilder.append(value);
+        stringBuilder.append(columnIdNameAndValue);
         stringBuilder.append(";");
 
         return stringBuilder.toString();
     }
 
-    public List<String> getAllColumnsNames(Class<?> clazz) {
+    @VisibleForTesting
+    List<String> getAllColumnsNames(Class<?> clazz) {
         List<String> columnsNames = new ArrayList<>();
-
         for (Field declaredField : clazz.getDeclaredFields()) {
             Column columnAnnotation = declaredField.getAnnotation(Column.class);
             if (columnAnnotation != null) {
@@ -151,13 +161,71 @@ public class QueryGenerator {
         return columnsNames;
     }
 
-    public String getColumnNameById(Class<?> clazz) {
-        for (Field declaredField : clazz.getDeclaredFields()) {
-            Column columnAnnotation = declaredField.getAnnotation(Column.class);
-            if (Objects.equals(columnAnnotation.name(), "person_id")) {
-                return columnAnnotation.name();
+    @VisibleForTesting
+    String getAllValuesOfFields(Object value) {
+        StringJoiner stringJoiner = new StringJoiner(", ");
+        Class<?> clazz = value.getClass();
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.getAnnotation(Column.class) != null) {
+                stringJoiner.add(getColumnValue(field, value));
+            }
+        }
+        return stringJoiner.toString();
+    }
+
+    @VisibleForTesting
+    String getColumnIdValueAndName(Object value) {
+        StringJoiner stringJoiner = new StringJoiner(", ");
+        Class<?> clazz = value.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Key.class) != null)) {
+                stringJoiner.add(getColumnName(field) + " = " + getColumnValue(field, value));
+            }
+        }
+        return stringJoiner.toString();
+    }
+
+    @VisibleForTesting
+    String getIdColumnName(Class<?> clazz) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getAnnotation(Key.class) != null && (field.getAnnotation(Column.class) != null)) {
+                return field.getAnnotation(Column.class).name();
             }
         }
         return null;
+    }
+
+    @VisibleForTesting
+    String getColumnsNamesAndValues(Object value) {
+        StringJoiner stringJoiner = new StringJoiner(", ");
+        Class<?> clazz = value.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Key.class) == null)) {
+                stringJoiner.add(getColumnName(field) + " = " + getColumnValue(field, value));
+            }
+        }
+        return stringJoiner.toString();
+    }
+
+    private String getColumnValue(Field field, Object id) {
+        field.setAccessible(true);
+        try {
+            Object value = field.get(id);
+            if (value == null) {
+                return null;
+            }
+            if (field.getType() == String.class) {
+                return "'" + value + "'";
+            }
+            return String.valueOf(value);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getColumnName(Field field) {
+        return field.getAnnotation(Column.class).name();
     }
 }
