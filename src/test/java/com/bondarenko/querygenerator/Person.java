@@ -17,5 +17,4 @@ public class Person {
         this.name = name;
         this.salary = salary;
     }
-
 }
