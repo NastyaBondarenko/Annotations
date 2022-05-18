@@ -85,7 +85,7 @@ public class QueryGeneratorTest {
     public void testGetColumnIdNameAndValue() {
         Person newPerson = new Person(4, "Katya", 1000.0);
 
-        String actual = queryGenerator.getColumnIdNameAndValue(newPerson);
+        String actual = queryGenerator.getColumnIdValueAndName(newPerson);
         String expected = "person_id = 4";
 
         assertEquals(expected, actual);
