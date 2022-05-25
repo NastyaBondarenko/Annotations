@@ -2,8 +2,8 @@ package com.bondarenko.querygenerator;
 
 @Table
 public class Person {
-    @Key
-    @Column(name = "person_id")
+    @Id
+    @Column
     private int id;
 
     @Column(name = "person_name")
