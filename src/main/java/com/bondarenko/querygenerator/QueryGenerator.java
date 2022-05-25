@@ -10,222 +10,219 @@ import java.util.StringJoiner;
 public class QueryGenerator {
 
     public String findAll(Class<?> clazz) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT ");
+        StringBuilder query = new StringBuilder("SELECT ");
 
-        Table annotation = clazz.getAnnotation(Table.class);
-        if (annotation == null) {
+        Table tableNameAnnotation = clazz.getAnnotation(Table.class);
+        if (tableNameAnnotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
-        String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
+        String tableName = tableNameAnnotation.name().isEmpty() ? clazz.getSimpleName() : tableNameAnnotation.name();
 
         StringJoiner columnsNames = new StringJoiner(", ");
         for (String allColumnsName : getAllColumnsNames(clazz)) {
             columnsNames.add(String.valueOf(allColumnsName));
         }
-        String AllColumnsNames = columnsNames.toString();
+        String allColumnsNames = columnsNames.toString();
 
-        stringBuilder.append(AllColumnsNames);
-        stringBuilder.append(" FROM ");
-        stringBuilder.append(tableName);
-        stringBuilder.append(";");
+        query.append(allColumnsNames);
+        query.append(" FROM ");
+        query.append(tableName);
+        query.append(";");
 
-        return stringBuilder.toString();
+        return query.toString();
     }
 
-    public String findById(Class<?> clazz, Object id) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT");
+    public String findById(Class<?> clazz, Object value) {
+        StringBuilder query = new StringBuilder("SELECT");
 
-        Table annotation = clazz.getAnnotation(Table.class);
-        if (annotation == null) {
+        Table tableNameAnnotation = clazz.getAnnotation(Table.class);
+        if (tableNameAnnotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
-        String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
+        String tableName = tableNameAnnotation.name().isEmpty() ? clazz.getSimpleName() : tableNameAnnotation.name();
 
         StringJoiner columnsNames = new StringJoiner(", ");
         for (String allColumnsName : getAllColumnsNames(clazz)) {
             columnsNames.add(String.valueOf(allColumnsName));
         }
-        String AllColumnsNames = columnsNames.toString();
+        String allColumnsNames = columnsNames.toString();
+        String idColumnName = getIdColumnName(clazz);
 
-        StringJoiner idColumnName = new StringJoiner(" ");
+        query.append(" ");
+        query.append(allColumnsNames);
+        query.append(" ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE ");
+        query.append(idColumnName);
+        query.append(" ");
+        query.append("=");
+        query.append(" ");
+        query.append("'");
+        query.append(value);
+        query.append("'");
+        query.append(";");
+
+        return query.toString();
+    }
+
+    public String insert(Object value) {
+        Class<?> clazz = value.getClass();
+
+        StringBuilder query = new StringBuilder("INSERT INTO ");
+
+        Table tableNameAnnotation = clazz.getAnnotation(Table.class);
+        if (tableNameAnnotation == null) {
+            throw new IllegalArgumentException("@Table is not exist");
+        }
+        String tableName = tableNameAnnotation.name().isEmpty() ? clazz.getSimpleName() : tableNameAnnotation.name();
+
+        StringJoiner columnsNames = new StringJoiner(", ");
+        for (String allColumnsName : getAllColumnsNames(clazz)) {
+            columnsNames.add(String.valueOf(allColumnsName));
+        }
+        String allColumnsNames = columnsNames.toString();
+        String allValuesOfFields = getAllValuesOfFields(value);
+
+        query.append(tableName);
+        query.append(" (");
+        query.append(allColumnsNames);
+        query.append(") VALUES (");
+        query.append(allValuesOfFields);
+        query.append(")");
+        query.append(";");
+
+        return query.toString();
+    }
+
+    public String delete(Class<?> clazz, Object value) {
+        Table tableNameAnnotation = clazz.getAnnotation(Table.class);
+        if (tableNameAnnotation == null) {
+            throw new IllegalArgumentException("@Table is not exist");
+        }
+        String tableName = tableNameAnnotation.name().isEmpty() ? clazz.getSimpleName() : tableNameAnnotation.name();
         String columnName = getIdColumnName(clazz);
-        idColumnName.add(columnName);
 
-        stringBuilder.append(" ");
-        stringBuilder.append(AllColumnsNames);
-        stringBuilder.append(" ");
-        stringBuilder.append("FROM ");
-        stringBuilder.append(tableName);
-        stringBuilder.append(" WHERE ");
-        stringBuilder.append(idColumnName);
-        stringBuilder.append(" ");
-        stringBuilder.append("=");
-        stringBuilder.append(" ");
-        stringBuilder.append(id);
-        stringBuilder.append(";");
+        StringBuilder query = new StringBuilder("DELETE ");
 
-        return stringBuilder.toString();
-    }
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE ");
+        query.append(columnName);
+        query.append(" ");
+        query.append("=");
+        query.append(" ");
+        query.append("'");
+        query.append(value);
+        query.append("'");
+        query.append(";");
 
-    public String insert(Object id) {
-        Class<?> clazz = id.getClass();
-
-        StringBuilder stringBuilder = new StringBuilder("INSERT INTO ");
-
-        Table annotation = clazz.getAnnotation(Table.class);
-        if (annotation == null) {
-            throw new IllegalArgumentException("@Table is not exist");
-        }
-        String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
-
-        StringJoiner columnsNames = new StringJoiner(", ");
-        for (String allColumnsName : getAllColumnsNames(clazz)) {
-            columnsNames.add(String.valueOf(allColumnsName));
-        }
-        String AllColumnsNames = columnsNames.toString();
-        String valuesOfFields = getAllValuesOfFields(id);
-
-        stringBuilder.append(tableName);
-        stringBuilder.append(" (");
-        stringBuilder.append(AllColumnsNames);
-        stringBuilder.append(") VALUES ('");
-        stringBuilder.append(valuesOfFields);
-        stringBuilder.append("')");
-        stringBuilder.append(";");
-
-        return stringBuilder.toString();
-    }
-
-    public String delete(Class<?> clazz, Object id) {
-        Table annotation = clazz.getAnnotation(Table.class);
-        if (annotation == null) {
-            throw new IllegalArgumentException("@Table is not exist");
-        }
-        String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
-
-        StringJoiner idColumnName = new StringJoiner(" ");
-        String columnName = getIdColumnName(clazz);
-        idColumnName.add(columnName);
-
-        StringBuilder stringBuilder = new StringBuilder("DELETE ");
-        stringBuilder.append("FROM ");
-        stringBuilder.append(tableName);
-        stringBuilder.append(" WHERE ");
-        stringBuilder.append(idColumnName);
-        stringBuilder.append(" ");
-        stringBuilder.append("=");
-        stringBuilder.append(" ");
-        stringBuilder.append(id);
-        stringBuilder.append(";");
-
-        return stringBuilder.toString();
+        return query.toString();
     }
 
     public String update(Object value) {
         Class<?> clazz = value.getClass();
+        StringBuilder query = new StringBuilder("UPDATE ");
 
-        StringBuilder stringBuilder = new StringBuilder("UPDATE ");
-
-        Table annotation = clazz.getAnnotation(Table.class);
-        if (annotation == null) {
+        Table tableNameAnnotation = clazz.getAnnotation(Table.class);
+        if (tableNameAnnotation == null) {
             throw new IllegalArgumentException("@Table is not exist");
         }
-        String tableName = annotation.name().isEmpty() ? clazz.getSimpleName() : annotation.name();
-
-        StringJoiner columnNameById = new StringJoiner(" ");
-        String columnName = getIdColumnName(clazz);
-        columnNameById.add(columnName);
+        String tableName = tableNameAnnotation.name().isEmpty() ? clazz.getSimpleName() : tableNameAnnotation.name();
 
         String columnIdNameAndValue = getColumnIdValueAndName(value);
         String columnsNamesAndValues = getColumnsNamesAndValues(value);
 
-        stringBuilder.append(tableName);
-        stringBuilder.append(" SET ");
-        stringBuilder.append(columnsNamesAndValues);
-        stringBuilder.append(" WHERE ");
-        stringBuilder.append(columnIdNameAndValue);
-        stringBuilder.append(";");
+        query.append(tableName);
+        query.append(" SET ");
+        query.append(columnsNamesAndValues);
+        query.append(" WHERE ");
+        query.append(columnIdNameAndValue);
+        query.append(";");
 
-        return stringBuilder.toString();
+        return query.toString();
     }
 
     @VisibleForTesting
     List<String> getAllColumnsNames(Class<?> clazz) {
-        List<String> columnsNames = new ArrayList<>();
+        List<String> allColumnsNames = new ArrayList<>();
         for (Field declaredField : clazz.getDeclaredFields()) {
             Column columnAnnotation = declaredField.getAnnotation(Column.class);
             if (columnAnnotation != null) {
-                columnsNames.add(columnAnnotation.name());
+                String columnName = columnAnnotation.name().isEmpty() ? declaredField.getName() : columnAnnotation.name();
+                allColumnsNames.add(columnName);
             }
         }
-        return columnsNames;
+        return allColumnsNames;
     }
 
     @VisibleForTesting
     String getAllValuesOfFields(Object value) {
-        StringJoiner stringJoiner = new StringJoiner(", ");
+        StringJoiner allValuesOfFields = new StringJoiner(", ");
         Class<?> clazz = value.getClass();
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.getAnnotation(Column.class) != null) {
-                stringJoiner.add(getColumnValue(field, value));
+                allValuesOfFields.add(getColumnValue(field, value));
             }
         }
-        return stringJoiner.toString();
+        return allValuesOfFields.toString();
     }
 
     @VisibleForTesting
     String getColumnIdValueAndName(Object value) {
-        StringJoiner stringJoiner = new StringJoiner(", ");
+        StringJoiner columnIdValueAndName = new StringJoiner(", ");
         Class<?> clazz = value.getClass();
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Key.class) != null)) {
-                stringJoiner.add(getColumnName(field) + " = " + getColumnValue(field, value));
+            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Id.class) != null)) {
+                columnIdValueAndName.add(getColumnName(field) + " = " + getColumnValue(field, value));
             }
         }
-        return stringJoiner.toString();
+        return columnIdValueAndName.toString();
     }
 
     @VisibleForTesting
     String getIdColumnName(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.getAnnotation(Key.class) != null && (field.getAnnotation(Column.class) != null)) {
-                return field.getAnnotation(Column.class).name();
+            if (field.getAnnotation(Id.class) != null && (field.getAnnotation(Column.class) != null)) {
+                String columnNameAnnotation = field.getAnnotation(Column.class).name();
+                return columnNameAnnotation.isEmpty() ? field.getName() : columnNameAnnotation;
             }
         }
-        return null;
+        throw new RuntimeException("Annotation of column is not exist");
     }
 
     @VisibleForTesting
     String getColumnsNamesAndValues(Object value) {
-        StringJoiner stringJoiner = new StringJoiner(", ");
+        StringJoiner columnsNamesAndValues = new StringJoiner(", ");
         Class<?> clazz = value.getClass();
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Key.class) == null)) {
-                stringJoiner.add(getColumnName(field) + " = " + getColumnValue(field, value));
+            if (field.getAnnotation(Column.class) != null && (field.getAnnotation(Id.class) == null)) {
+                columnsNamesAndValues.add(getColumnName(field) + " = " + getColumnValue(field, value));
             }
         }
-        return stringJoiner.toString();
+        return columnsNamesAndValues.toString();
     }
 
-    private String getColumnValue(Field field, Object id) {
+    private String getColumnValue(Field field, Object value) {
         field.setAccessible(true);
         try {
-            Object value = field.get(id);
-            if (value == null) {
+            Object columnValue = field.get(value);
+            if (columnValue == null) {
                 return null;
             }
             if (field.getType() == String.class) {
-                return "'" + value + "'";
+                return "'" + columnValue + "'";
             }
-            return String.valueOf(value);
+            return "'" + columnValue + "'";
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Value is not an instance of the class declaring by this field", e);
         }
     }
 
     private String getColumnName(Field field) {
-        return field.getAnnotation(Column.class).name();
+        String columnAnnotationName = field.getAnnotation(Column.class).name();
+        String columnName = columnAnnotationName.isEmpty() ? field.getName() : field.getAnnotation(Column.class).name();
+        return columnName;
     }
 }
