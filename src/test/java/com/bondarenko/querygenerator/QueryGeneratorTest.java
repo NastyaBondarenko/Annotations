@@ -9,14 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QueryGeneratorTest {
-
     private QueryGenerator queryGenerator = new QueryGenerator();
 
     @Test
     @DisplayName("test Find All")
     public void testFindAll() {
         String actualQuery = queryGenerator.findAll(Person.class);
-        String expectedQuery = "SELECT person_id, person_name, person_salary FROM Person;";
+        String expectedQuery = "SELECT id, person_name, person_salary FROM Person;";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -25,7 +24,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Find ById")
     public void testFindById() {
         String actualQuery = queryGenerator.findById(Person.class, 10);
-        String expectedQuery = "SELECT person_id, person_name, person_salary FROM Person WHERE person_id = 10;";
+        String expectedQuery = "SELECT id, person_name, person_salary FROM Person WHERE id = '10';";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -35,7 +34,7 @@ public class QueryGeneratorTest {
     public void testInsert() {
         Person newPerson = new Person(4, "Katya", 1000.0);
         String actualQuery = queryGenerator.insert(newPerson);
-        String expectedQuery = "INSERT INTO Person (person_id, person_name, person_salary) VALUES ('4, 'Katya', 1000.0');";
+        String expectedQuery = "INSERT INTO Person (id, person_name, person_salary) VALUES ('4', 'Katya', '1000.0');";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -44,7 +43,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Delete")
     public void testDelete() {
         String actualQuery = queryGenerator.delete(Person.class, 10);
-        String expectedQuery = "DELETE FROM Person WHERE person_id = 10;";
+        String expectedQuery = "DELETE FROM Person WHERE id = '10';";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -54,7 +53,7 @@ public class QueryGeneratorTest {
     public void testUpdate() {
         Person newPerson = new Person(4, "Katya", 1000);
         String actualQuery = queryGenerator.update(newPerson);
-        String expectedQuery = "UPDATE Person SET person_name = 'Katya', person_salary = 1000.0 WHERE person_id = 4;";
+        String expectedQuery = "UPDATE Person SET person_name = 'Katya', person_salary = '1000.0' WHERE id = '4';";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -63,7 +62,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Get All Columns Names")
     public void testGetAllColumnsNames() {
         List<String> allColumnsNames = queryGenerator.getAllColumnsNames(Person.class);
-        assertTrue(allColumnsNames.contains("person_id"));
+        assertTrue(allColumnsNames.contains("id"));
         assertTrue(allColumnsNames.contains("person_name"));
         assertTrue(allColumnsNames.contains("person_salary"));
 
@@ -86,7 +85,7 @@ public class QueryGeneratorTest {
         Person newPerson = new Person(4, "Katya", 1000.0);
 
         String actual = queryGenerator.getColumnIdValueAndName(newPerson);
-        String expected = "person_id = 4";
+        String expected = "id = '4'";
 
         assertEquals(expected, actual);
     }
@@ -95,7 +94,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Get Id Column Name")
     public void testGetIdColumnName() {
         String actual = queryGenerator.getIdColumnName(Person.class);
-        String expected = "person_id";
+        String expected = "id";
 
         assertEquals(expected, actual);
     }
@@ -106,7 +105,7 @@ public class QueryGeneratorTest {
         Person newPerson = new Person(4, "Katya", 1000.0);
 
         String actual = queryGenerator.getColumnsNamesAndValues(newPerson);
-        String expected = "person_name = 'Katya', person_salary = 1000.0";
+        String expected = "person_name = 'Katya', person_salary = '1000.0'";
 
         assertEquals(expected, actual);
     }
