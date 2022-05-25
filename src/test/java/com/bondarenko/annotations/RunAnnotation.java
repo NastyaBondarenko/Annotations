@@ -1,6 +1,4 @@
-package com.bondarenko.testannotations;
-
-import com.bondarenko.annotations.Run;
+package com.bondarenko.annotations;
 
 public class RunAnnotation {
     @Run

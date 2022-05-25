@@ -1,6 +1,4 @@
-package com.bondarenko.testannotations;
-
-import com.bondarenko.annotations.Inject;
+package com.bondarenko.annotations;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
