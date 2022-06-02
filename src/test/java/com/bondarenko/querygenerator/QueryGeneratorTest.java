@@ -24,7 +24,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Find ById")
     public void testFindById() {
         String actualQuery = queryGenerator.findById(Person.class, 10);
-        String expectedQuery = "SELECT id, person_name, person_salary FROM Person WHERE id = '10';";
+        String expectedQuery = "SELECT id, person_name, person_salary FROM Person WHERE id = 10;";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -34,7 +34,7 @@ public class QueryGeneratorTest {
     public void testInsert() {
         Person newPerson = new Person(4, "Katya", 1000.0);
         String actualQuery = queryGenerator.insert(newPerson);
-        String expectedQuery = "INSERT INTO Person (id, person_name, person_salary) VALUES ('4', 'Katya', '1000.0');";
+        String expectedQuery = "INSERT INTO Person (id, person_name, person_salary) VALUES (4, 'Katya', 1000.0);";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -43,7 +43,7 @@ public class QueryGeneratorTest {
     @DisplayName("test Delete")
     public void testDelete() {
         String actualQuery = queryGenerator.delete(Person.class, 10);
-        String expectedQuery = "DELETE FROM Person WHERE id = '10';";
+        String expectedQuery = "DELETE FROM Person WHERE id = 10;";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -53,7 +53,7 @@ public class QueryGeneratorTest {
     public void testUpdate() {
         Person newPerson = new Person(4, "Katya", 1000);
         String actualQuery = queryGenerator.update(newPerson);
-        String expectedQuery = "UPDATE Person SET person_name = 'Katya', person_salary = '1000.0' WHERE id = '4';";
+        String expectedQuery = "UPDATE Person SET person_name = 'Katya', person_salary = 1000.0 WHERE id = 4;";
 
         assertEquals(expectedQuery, actualQuery);
     }
@@ -85,7 +85,7 @@ public class QueryGeneratorTest {
         Person newPerson = new Person(4, "Katya", 1000.0);
 
         String actual = queryGenerator.getColumnIdValueAndName(newPerson);
-        String expected = "id = '4'";
+        String expected = "id = 4";
 
         assertEquals(expected, actual);
     }
@@ -105,7 +105,7 @@ public class QueryGeneratorTest {
         Person newPerson = new Person(4, "Katya", 1000.0);
 
         String actual = queryGenerator.getColumnsNamesAndValues(newPerson);
-        String expected = "person_name = 'Katya', person_salary = '1000.0'";
+        String expected = "person_name = 'Katya', person_salary = 1000.0";
 
         assertEquals(expected, actual);
     }
