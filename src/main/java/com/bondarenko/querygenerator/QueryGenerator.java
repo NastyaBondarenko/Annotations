@@ -58,9 +58,7 @@ public class QueryGenerator {
         query.append(" ");
         query.append("=");
         query.append(" ");
-        query.append("'");
         query.append(value);
-        query.append("'");
         query.append(";");
 
         return query.toString();
@@ -112,9 +110,7 @@ public class QueryGenerator {
         query.append(" ");
         query.append("=");
         query.append(" ");
-        query.append("'");
         query.append(value);
-        query.append("'");
         query.append(";");
 
         return query.toString();
@@ -214,7 +210,7 @@ public class QueryGenerator {
             if (field.getType() == String.class) {
                 return "'" + columnValue + "'";
             }
-            return "'" + columnValue + "'";
+            return "" + columnValue + "";
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Value is not an instance of the class declaring by this field", e);
         }
